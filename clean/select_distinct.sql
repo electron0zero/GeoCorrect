@@ -1,0 +1,1 @@
+select distinct venue_id from checkins
