@@ -1,0 +1,1 @@
+SELECT `venue_id`, `lat`, `lng` FROM `checkins` WHERE `venue_id` LIKE '49bbd6c0f964a520f4531fe3';
