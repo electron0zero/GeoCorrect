@@ -1,0 +1,1 @@
+SELECT venues.venue_id, venues.lat, venues.lng, results.lat as lat_new, results.lng as lng_new  FROM venues LEFT JOIN results ON venues.venue_id = results.venue_id LIMIT 10

@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+
+{% block page_content %}
+    <!--Head Text-->
+    <div class="page-header text-center">
+        <h1 >GeoCorrect</h1>
+        <h3>Choose a Foursquare Venue ID to see it on map</h3>
+    </div>
+
+    <!--data table-->
+  <table class="table table-bordered table-hover table-responsive">
+    <thead>
+      <tr>
+        <th class="text-center">Foursquare Venue ID</th>
+        <th class="text-center danger">Old Latitude </th>
+        <th class="text-center danger">Old Longitude</th>
+        <th class="text-center success">New Latitude </th>
+        <th class="text-center success">New Longitude</th>
+
+      </tr>
+    </thead>
+    <tbody class="text-center">
+      {% for entry in entries %}
+        <tr>
+          <td><a href="/{{ entry.venue_id }}">{{ entry.venue_id }}</a></td>
+          <td class="danger">{{ entry.lat }}</td>
+          <td class="danger">{{ entry.lng }}</td>
+          <td class="success">{{ entry.lat_new }}</td>
+          <td class="success">{{ entry.lng_new }}</td>
+
+          </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+{% endblock %}

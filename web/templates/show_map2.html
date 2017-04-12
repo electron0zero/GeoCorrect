@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+
+{% block title %}GeoCorrect{% endblock %}
+
+{% block page_content %}
+
+  <h1>checkins</h1>
+    <!--data table-->
+  <table class="table table-bordered table-hover table-responsive">
+    <thead>
+      <tr>
+        <th class="text-center">Latitude </th>
+        <th class="text-center">Longitude</th>
+      </tr>
+    </thead>
+    <tbody class="text-center">
+      {% for entry in checkins %}
+        <tr>
+          <td>{{ entry.lat }}</td>
+          <td>{{ entry.lng }}</td>
+          </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  <h1>Old Location</h1>
+    <!--data table-->
+  <table class="table table-bordered table-hover table-responsive">
+    <thead>
+      <tr>
+        <th class="text-center">Latitude </th>
+        <th class="text-center">Longitude</th>
+      </tr>
+    </thead>
+    <tbody class="text-center">
+      {% for entry in old_loc %}
+        <tr>
+          <td>{{ entry.lat }}</td>
+          <td>{{ entry.lng }}</td>
+          </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  <h1>New Location</h1>
+    <!--data table-->
+  <table class="table table-bordered table-hover table-responsive">
+    <thead>
+      <tr>
+        <th class="text-center">Latitude </th>
+        <th class="text-center">Longitude</th>
+      </tr>
+    </thead>
+    <tbody class="text-center">
+      {% for entry in new_loc %}
+        <tr>
+          <td>{{ entry.lat }}</td>
+          <td>{{ entry.lng }}</td>
+          </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  <h1>Map</h1>
+
+{% endblock %}
