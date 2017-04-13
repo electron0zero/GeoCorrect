@@ -1,5 +1,7 @@
 # GeoCorrect
-Correction of maps(location data) using on VGI data 
+Correction of maps(location data) using on VGI data
+
+## Demo is live at [https://geocorrect.herokuapp.com/](https://geocorrect.herokuapp.com/) have a look
 
 # Instructions
 
@@ -10,6 +12,7 @@ Correction of maps(location data) using on VGI data
 - Work on feature branch, don't push on `master`. make a PR from feature branch to master
 
 ---
+
 # Components
 ### folder structure
 - algo : folder for algorithm
