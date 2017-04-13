@@ -59,29 +59,15 @@ def index():
 
 @app.route('/<venue_id>')
 def show_map(venue_id):
-    db = get_db()
-    query_checkins = "SELECT lat, lng FROM checkins WHERE venue_id = " + "'" + venue_id + "'"
-    cur = db.execute(query_checkins)
-    checkins = cur.fetchall()
-    query_old_loc = "SELECT lat, lng FROM venues WHERE venue_id = " + "'" + venue_id + "'"
-    cur = db.execute(query_old_loc)
-    old_location = cur.fetchall()
-    query_new_loc = "SELECT lat, lng FROM results WHERE venue_id = " + "'" + venue_id + "'"
-    cur = db.execute(query_new_loc)
-    new_location = cur.fetchall()
-    # build the data dict for template
-    # data = {}
-    # data['icons'] = icons
-    # data['new_loc'] = new_location
-    # data['old_loc'] = old_location
-    # data['checkins'] = checkins
+    map_data = get_map_obj(venue_id)
+    return render_template('show_map.html', map_obj=map_data, venue_id=venue_id)
 
-    # for lat, lng in checkins:
-    #     app.logger.info(lat)
-    #     app.logger.info(lng)
-    # Build Map object for Showing
-    # return render_template('show_map.html', data=data)
-    return render_template('show_map2.html', checkins=checkins, old_loc=old_location, new_loc=new_location)
+
+@app.route('/table/<venue_id>')
+def show_map_table(venue_id):
+    # fetch data from db
+    checkins, old_location, new_location = fetch_data(venue_id)
+    return render_template('show_map_table.html', checkins=checkins, old_loc=old_location, new_loc=new_location, venue_id=venue_id)
 
 
 @app.errorhandler(404)
@@ -92,10 +78,83 @@ def page_not_found(e):
 @app.errorhandler(500)
 def internal_server_error(e):
     return render_template('500.html'), 500
-# """
 
 
-def get_map_obj():
+def get_map_obj(venue_id):
+    # fetch data from db
+    checkins, old_location, new_location = fetch_data(venue_id)
+
+    # Build Map object for Showing
+    markers_list = []
+    new_lat = ""
+    new_lng = ""
+    old_lat = ""
+    new_lng = ""
+    # Add checkins in Markers list
+    for lat, lng in checkins:
+        dict = {}
+        dict['icon'] = url_for('static', filename='yc.png')
+        dict['lat'] = lat
+        dict['lng'] = lng
+        dict['infobox'] = "Checkin"
+        markers_list.append(dict)
+
+    # Add old Location in Markers list
+    for lat, lng in old_location:
+        dict = {}
+        dict['icon'] = url_for('static', filename='bo.png')
+        dict['lat'] = lat
+        dict['lng'] = lng
+        dict['infobox'] = "Old Location"
+        markers_list.append(dict)
+        old_lat = lat
+        old_lng = lng
+
+    # Add New Location in Markers list
+    for lat, lng in new_location:
+        dict = {}
+        dict['icon'] = url_for('static', filename='gn.png')
+        dict['lat'] = lat
+        dict['lng'] = lng
+        dict['infobox'] = "New Location"
+        markers_list.append(dict)
+        new_lat = lat
+        new_lng = lng
+    # Build a polyline between new and old location
+    polyline = {}
+    polyline['stroke_color'] = '#448aff'
+    polyline['stroke_opacity'] = '1.0'
+    polyline['stroke_weight'] = '8'
+    polyline['infobox'] = 'Old Location to New location'
+    path_list = []
+    path_list.append((old_lat, old_lng))
+    path_list.append((new_lat, new_lng))
+    polyline['path'] = path_list
+
+    fullmap = Map(
+        identifier="fullmap",
+        varname="fullmap",
+        style=(
+            "height:100%;"
+            "width:100%;"
+            "top:0;"
+            "left:0;"
+            "position:absolute;"
+            "z-index:-1;"
+        ),
+        lat=new_lat,
+        lng=new_lng,
+        markers=markers_list,
+        maptype="TERRAIN",
+        polylines=[polyline],
+        cluster=False,
+        cluster_imagepath=url_for('static', filename='m2.png'),
+        zoom="20"
+    )
+    return fullmap
+
+
+def fetch_data(venue_id):
     db = get_db()
     query_checkins = "SELECT lat, lng FROM checkins WHERE venue_id = " + "'" + venue_id + "'"
     cur = db.execute(query_checkins)
@@ -106,60 +165,9 @@ def get_map_obj():
     query_new_loc = "SELECT lat, lng FROM results WHERE venue_id = " + "'" + venue_id + "'"
     cur = db.execute(query_new_loc)
     new_location = cur.fetchall()
-    # guess what?, render_template can take only one item so we have to wrap them up
-    # build the data dict for template
-    # data = {}
-    # data['icons'] = icons
-    # data['new_loc'] = new_location
-    # data['old_loc'] = old_location
-    # data['checkins'] = checkins
 
-    # for lat, lng in checkins:
-    #     app.logger.info(lat)
-    #     app.logger.info(lng)
-    # Build Map object for Showing
-    fullmap = Map(
-        identifier="fullmap",
-        varname="fullmap",
-        style=(
-            "height:100%;"
-            "width:100%;"
-            "top:0;"
-            "left:0;"
-            "position:absolute;"
-            "z-index:200;"
-        ),
-        lat=37.4419,
-        lng=-122.1419,
-        markers=[
-            for lat, lng in checkins:
-                {
-                    'icon': icons.dots.yellow,
-                    'lat': lat,
-                    'lng': lng,
-                    'infobox': "Hello I am <b style='color:green;'>GREEN</b>!"
-                },
-            for lat, lng in old_location:
-                {
-                    'icon': icons.dots.blue,
-                    'lat': lat,
-                    'lng': lng,
-                    'infobox': "Hello I am <b style='color:blue;'>BLUE</b>!"
-                },
-            for lat, lng in new_location:
-                {
-                    'icon': icons.dots.green,
-                    'title': 'Click Here',
-                    'lat': lat,
-                    'lng': lng,
-                    'infobox': "Hello I am <b style='color:#ffcc00;'>YELLOW</b>!"
-                }
-        ],
-        maptype="TERRAIN",
-        zoom="15"
-    )
-    # return
-# """
+    return checkins, old_location, new_location
+
 
 if __name__ == '__main__':
     manager.run()
