@@ -4,9 +4,9 @@
 
 {% block page_content %}
     {{ super() }}
-    <div style="text-align:center; margin-top: 10px;">
-    <a class="btn btn-primary" style="display:inline-block;" href="/">&#127968; Home</a>
-    <a  class="btn btn-primary" style="display:inline-block;" href="/table/{{ venue_id }}">&#9638; Show Data in Table</a>
+    <div  style="text-align:center; margin-top: 10px; display:inline-block; position: absolute; left: 40%; margin: 10 auto;">
+    <a class="btn btn-primary" href="/">&#127968; Home</a>
+    <a  class="btn btn-primary" href="/table/{{ venue_id }}">&#9638; Show Data in Table</a>
     </div>
 
     {% with map = map_obj %}
