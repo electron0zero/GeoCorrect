@@ -4,7 +4,50 @@
 
 {% block page_content %}
 
-  <h1>checkins</h1>
+    <div style="text-align:center; margin-top: 10px;">
+    <a class="btn btn-primary" style="display:inline-block;" href="/">&#127968; Home</a>
+    <a  class="btn btn-primary" style="display:inline-block;" href="/{{ venue_id }}">&#128506; Map</a>
+    </div>
+
+  <h1 class="text-center text-success">New Location</h1>
+    <!--data table-->
+  <table class="table table-bordered table-hover table-responsive">
+    <thead>
+      <tr>
+        <th class="text-center success">Latitude </th>
+        <th class="text-center success">Longitude</th>
+      </tr>
+    </thead>
+    <tbody class="text-center">
+      {% for entry in new_loc %}
+        <tr>
+          <td class="success">{{ entry.lat }}</td>
+          <td class="success">{{ entry.lng }}</td>
+          </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  <h1 class="text-center text-danger" >Old Location</h1>
+    <!--data table-->
+  <table class="table table-bordered table-hover table-responsive">
+    <thead>
+      <tr>
+        <th class="text-center danger">Latitude </th>
+        <th class="text-center danger">Longitude</th>
+      </tr>
+    </thead>
+    <tbody class="text-center">
+      {% for entry in old_loc %}
+        <tr>
+          <td class="danger">{{ entry.lat }}</td>
+          <td class="danger">{{ entry.lng }}</td>
+          </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  <h1 class="text-center" >Checkins</h1>
     <!--data table-->
   <table class="table table-bordered table-hover table-responsive">
     <thead>
@@ -22,44 +65,5 @@
       {% endfor %}
     </tbody>
   </table>
-
-  <h1>Old Location</h1>
-    <!--data table-->
-  <table class="table table-bordered table-hover table-responsive">
-    <thead>
-      <tr>
-        <th class="text-center">Latitude </th>
-        <th class="text-center">Longitude</th>
-      </tr>
-    </thead>
-    <tbody class="text-center">
-      {% for entry in old_loc %}
-        <tr>
-          <td>{{ entry.lat }}</td>
-          <td>{{ entry.lng }}</td>
-          </tr>
-      {% endfor %}
-    </tbody>
-  </table>
-
-  <h1>New Location</h1>
-    <!--data table-->
-  <table class="table table-bordered table-hover table-responsive">
-    <thead>
-      <tr>
-        <th class="text-center">Latitude </th>
-        <th class="text-center">Longitude</th>
-      </tr>
-    </thead>
-    <tbody class="text-center">
-      {% for entry in new_loc %}
-        <tr>
-          <td>{{ entry.lat }}</td>
-          <td>{{ entry.lng }}</td>
-          </tr>
-      {% endfor %}
-    </tbody>
-  </table>
-  <h1>Map</h1>
 
 {% endblock %}
