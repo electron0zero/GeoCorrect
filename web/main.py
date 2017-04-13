@@ -50,7 +50,7 @@ def close_db(error):
 @app.route('/')
 def index():
     db = get_db()
-    query = "SELECT venues.venue_id, venues.lat, venues.lng, results.lat as lat_new, results.lng as lng_new  FROM venues LEFT JOIN results ON venues.venue_id = results.venue_id LIMIT 100"
+    query = "SELECT venues.venue_id, venues.lat, venues.lng, results.lat as lat_new, results.lng as lng_new  FROM venues LEFT JOIN results ON venues.venue_id = results.venue_id LIMIT 1000"
     cur = db.execute(query)
     entries = cur.fetchall()
     # app.logger.info(entries)
