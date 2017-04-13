@@ -1,6 +1,59 @@
-{% block head %}
-{% endblock %}
+{% extends "base.html" %}
+
+{% block title %}GeoCorrect{% endblock %}
+
+{% macro input(new_location) -%}
+    {% for entry in new_location %}
+        lat = {{ entry.lat }},
+        lng = {{ entry.lng }},
+    {% endfor %}
+{%- endmacro %}
+
+
+{# Map Object for rendering #}
+{% set map_object = googlemap_obj( 
+        identifier="fullmap",
+        varname="fullmap",
+        style=(
+            "height:100%;"
+            "width:100%;"
+            "top:0;"
+            "left:0;"
+            "position:absolute;"
+            "z-index:200;"
+        ),
+        lat = 37.4419,
+        lng = -122.1349,
+        markers=[
+            {
+                'icon': data.icons.dots.yellow,
+                'lat': 37.4419,
+                'lng': -122.1349,
+                'infobox': "Hello Yellow"
+            },
+            {
+                'icon': data.icons.dots.blue,
+                'lat': 37.4300,
+                'lng': -122.1351,
+                'infobox': "Hello BLUE !"
+            },
+            {
+                'icon': data.icons.alpha.A,
+                'lat': 37.4500,
+                'lng': -122.1350,
+                'infobox': "Hello Alpha"
+            }
+        ],
+        maptype = "TERRAIN",
+        zoom="15"
+    )
+%}
 
 {% block page_content %}
-    <h1>Test 123</h1>
+    {{ super() }}
+    <h2> Template function with multiple markers </h2>
+    {% with map = map_object %}
+        {{map.html}}
+        {{map.js}}
+    {% endwith %}
 {% endblock %}

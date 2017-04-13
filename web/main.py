@@ -69,10 +69,20 @@ def show_map(venue_id):
     query_new_loc = "SELECT lat, lng FROM results WHERE venue_id = " + "'" + venue_id + "'"
     cur = db.execute(query_new_loc)
     new_location = cur.fetchall()
-    # return venue_id
-    return render_template('show_map.html')
-    # , checkins=checkins, old_loc=old_location, new_loc=new_location 
-#  icons=icons ,
+    # build the data dict for template
+    # data = {}
+    # data['icons'] = icons
+    # data['new_loc'] = new_location
+    # data['old_loc'] = old_location
+    # data['checkins'] = checkins
+
+    # for lat, lng in checkins:
+    #     app.logger.info(lat)
+    #     app.logger.info(lng)
+    # Build Map object for Showing
+    # return render_template('show_map.html', data=data)
+    return render_template('show_map2.html', checkins=checkins, old_loc=old_location, new_loc=new_location)
+
 
 @app.errorhandler(404)
 def page_not_found(e):
@@ -82,7 +92,74 @@ def page_not_found(e):
 @app.errorhandler(500)
 def internal_server_error(e):
     return render_template('500.html'), 500
+# """
 
+
+def get_map_obj():
+    db = get_db()
+    query_checkins = "SELECT lat, lng FROM checkins WHERE venue_id = " + "'" + venue_id + "'"
+    cur = db.execute(query_checkins)
+    checkins = cur.fetchall()
+    query_old_loc = "SELECT lat, lng FROM venues WHERE venue_id = " + "'" + venue_id + "'"
+    cur = db.execute(query_old_loc)
+    old_location = cur.fetchall()
+    query_new_loc = "SELECT lat, lng FROM results WHERE venue_id = " + "'" + venue_id + "'"
+    cur = db.execute(query_new_loc)
+    new_location = cur.fetchall()
+    # guess what?, render_template can take only one item so we have to wrap them up
+    # build the data dict for template
+    # data = {}
+    # data['icons'] = icons
+    # data['new_loc'] = new_location
+    # data['old_loc'] = old_location
+    # data['checkins'] = checkins
+
+    # for lat, lng in checkins:
+    #     app.logger.info(lat)
+    #     app.logger.info(lng)
+    # Build Map object for Showing
+    fullmap = Map(
+        identifier="fullmap",
+        varname="fullmap",
+        style=(
+            "height:100%;"
+            "width:100%;"
+            "top:0;"
+            "left:0;"
+            "position:absolute;"
+            "z-index:200;"
+        ),
+        lat=37.4419,
+        lng=-122.1419,
+        markers=[
+            for lat, lng in checkins:
+                {
+                    'icon': icons.dots.yellow,
+                    'lat': lat,
+                    'lng': lng,
+                    'infobox': "Hello I am <b style='color:green;'>GREEN</b>!"
+                },
+            for lat, lng in old_location:
+                {
+                    'icon': icons.dots.blue,
+                    'lat': lat,
+                    'lng': lng,
+                    'infobox': "Hello I am <b style='color:blue;'>BLUE</b>!"
+                },
+            for lat, lng in new_location:
+                {
+                    'icon': icons.dots.green,
+                    'title': 'Click Here',
+                    'lat': lat,
+                    'lng': lng,
+                    'infobox': "Hello I am <b style='color:#ffcc00;'>YELLOW</b>!"
+                }
+        ],
+        maptype="TERRAIN",
+        zoom="15"
+    )
+    # return
+# """
 
 if __name__ == '__main__':
     manager.run()
