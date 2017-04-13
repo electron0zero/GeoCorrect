@@ -1,6 +1,5 @@
 # GeoCorrect
-Correction of Maps based on VGI Data
-
+Correction of maps(location data) using on VGI data 
 
 # Instructions
 
@@ -11,3 +10,9 @@ Correction of Maps based on VGI Data
 - Work on feature branch, don't push on `master`. make a PR from feature branch to master
 
 ---
+# Components
+### folder structure
+- algo : folder for algorithm
+- clean: folder for our dataset(clean data + dirty data + data cleaning scripts) 
+- docs : documentation
+- web: flask based web application to visualize data
