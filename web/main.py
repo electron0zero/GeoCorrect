@@ -6,6 +6,7 @@ from flask_script import Manager
 from flask_bootstrap import Bootstrap
 from flask_googlemaps import GoogleMaps
 from flask_googlemaps import Map, icons
+import requests
 
 basedir = os.path.abspath(os.path.dirname(__file__))
 
@@ -16,7 +17,9 @@ app.config.update(dict(
     DATABASE=os.path.join(app.root_path, 'data.sqlite'),
     DEBUG=True,
     SECRET_KEY='development key',
-    GOOGLEMAPS_KEY='AIzaSyAZzeHhs-8JZ7i18MjFuM35dJHq70n3Hx4'
+    GOOGLEMAPS_KEY='AIzaSyAZzeHhs-8JZ7i18MjFuM35dJHq70n3Hx4',
+    FSQ_CLIENT_ID="KWN5LLYHWCOD21MDIUEGN5FUONQLYRYSI4ESBC2GB5JCDITC",
+    FSQ_CLIENT_SECRET="TM2KT2FNC2P00MVH4BRWB32FXLJPOFDFRTL0KHHHWT3MSV0C"
 ))
 
 manager = Manager(app)
@@ -67,7 +70,8 @@ def show_map(venue_id):
 def show_map_table(venue_id):
     # fetch data from db
     checkins, old_location, new_location = fetch_data(venue_id)
-    return render_template('show_map_table.html', checkins=checkins, old_loc=old_location, new_loc=new_location, venue_id=venue_id)
+    venue_info_data = get_location_info(venue_id)
+    return render_template('show_map_table.html', checkins=checkins, old_loc=old_location, new_loc=new_location, venue_id=venue_id, venue_info=venue_info_data)
 
 
 @app.errorhandler(404)
@@ -120,12 +124,19 @@ def get_map_obj(venue_id):
         markers_list.append(dict)
         new_lat = lat
         new_lng = lng
+
     # Build a polyline between new and old location
+    # build plyline infobox
+    venue_info_data = get_location_info(venue_id)
+    venue_url = "<a target=\"_blank\" href=\"" + venue_info_data['venue_canonicalUrl'] + "\">" + venue_info_data['venue_canonicalUrl'] + "</a>"
+
+    infobox_str = "<h5 class=\"text-center\">Venue Information</h5>" + venue_info_data['venue_name'] + "<br>" + venue_info_data['venue_formattedAddress'] + "<br>" + venue_url
+
     polyline = {}
     polyline['stroke_color'] = '#448aff'
     polyline['stroke_opacity'] = '1.0'
     polyline['stroke_weight'] = '8'
-    polyline['infobox'] = 'Old Location to New location'
+    polyline['infobox'] = infobox_str
     path_list = []
     path_list.append((old_lat, old_lng))
     path_list.append((new_lat, new_lng))
@@ -168,6 +179,38 @@ def fetch_data(venue_id):
 
     return checkins, old_location, new_location
 
+
+def get_location_info(venue_id):
+    # auth info
+    c_id = app.config['FSQ_CLIENT_ID']
+    c_sec = app.config['FSQ_CLIENT_SECRET']
+    v = "20170101"
+    # auth payload for request
+    payload = {'client_id': c_id, 'client_secret': c_sec, 'v': v}
+
+    base_url = "https://api.foursquare.com/v2/venues/"
+
+    # request with venue_id and auth payload
+    r = requests.get(base_url + venue_id, params=payload)
+    # get these data fields and return
+    # data fields = name, location(formattedAddress), canonicalUrl
+    venue_name = "Not Found"
+    venue_formattedAddress = "Not Found"
+    venue_canonicalUrl = "Not Found"
+    # get data we get 200 response code otherwise 'Not Found'
+    if (r.status_code == 200):
+            resp = r.json()
+            venue_name = resp['response']['venue']['name']
+            venue_formattedAddress = resp['response']['venue']['location']['formattedAddress']
+            venue_canonicalUrl = resp['response']['venue']['canonicalUrl']
+
+    # build venue info data dict
+    venue_info_data = {}
+    venue_info_data['venue_name'] = venue_name
+    venue_info_data['venue_formattedAddress'] = ", ".join(venue_formattedAddress)
+    venue_info_data['venue_canonicalUrl'] = venue_canonicalUrl
+
+    return venue_info_data
 
 if __name__ == '__main__':
     manager.run()

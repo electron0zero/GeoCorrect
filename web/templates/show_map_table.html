@@ -9,6 +9,29 @@
     <a  class="btn btn-primary" style="display:inline-block;" href="/{{ venue_id }}">&#128506; Map</a>
     </div>
 
+    <h1 class="text-center">Venue Information</h1>
+    <!--data table-->
+    <table class="table table-bordered table-hover table-responsive">
+        <tbody class="text-center">
+        <tr>
+            <td>Foursquare Venue ID </td>
+            <td>{{ venue_id }}</td>
+        </tr>
+        <tr>
+            <td>Name </td>
+            <td>{{ venue_info.venue_name }}</td>
+        </tr>
+        <tr>
+            <td>Address </td>
+            <td>{{ venue_info.venue_formattedAddress }}</td>
+        </tr>
+        <tr>
+            <td>Foursquare URL</td>
+            <td><a target="_blank" href="{{ venue_info.venue_canonicalUrl }}">{{ venue_info.venue_canonicalUrl }}</a></td>
+        </tr>
+        </tbody>
+    </table>
+
   <h1 class="text-center text-success">New Location</h1>
     <!--data table-->
   <table class="table table-bordered table-hover table-responsive">
@@ -42,7 +65,7 @@
         <tr>
           <td class="danger">{{ entry.lat }}</td>
           <td class="danger">{{ entry.lng }}</td>
-          </tr>
+        </tr>
       {% endfor %}
     </tbody>
   </table>
