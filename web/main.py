@@ -1,7 +1,7 @@
 import os
 import sqlite3
 import logging
-from flask import Flask, render_template, url_for, g
+from flask import Flask, render_template, url_for, g, abort
 from flask_script import Manager
 from flask_bootstrap import Bootstrap
 from flask_googlemaps import GoogleMaps
@@ -15,7 +15,7 @@ app = Flask(__name__)
 # Load default config and override config from an environment variable
 app.config.update(dict(
     DATABASE=os.path.join(app.root_path, 'data.sqlite'),
-    DEBUG=True,
+    DEBUG=False,
     SECRET_KEY='development key',
     GOOGLEMAPS_KEY='AIzaSyAZzeHhs-8JZ7i18MjFuM35dJHq70n3Hx4',
     FSQ_CLIENT_ID="KWN5LLYHWCOD21MDIUEGN5FUONQLYRYSI4ESBC2GB5JCDITC",
@@ -168,14 +168,18 @@ def get_map_obj(venue_id):
 def fetch_data(venue_id):
     db = get_db()
     query_checkins = "SELECT lat, lng FROM checkins WHERE venue_id = " + "'" + venue_id + "'"
-    cur = db.execute(query_checkins)
-    checkins = cur.fetchall()
+    cur_checkins = db.execute(query_checkins)
+    checkins = cur_checkins.fetchall()
     query_old_loc = "SELECT lat, lng FROM venues WHERE venue_id = " + "'" + venue_id + "'"
-    cur = db.execute(query_old_loc)
-    old_location = cur.fetchall()
+    cur_old_loc = db.execute(query_old_loc)
+    old_location = cur_old_loc.fetchall()
     query_new_loc = "SELECT lat, lng FROM results WHERE venue_id = " + "'" + venue_id + "'"
-    cur = db.execute(query_new_loc)
-    new_location = cur.fetchall()
+    cur_new_loc = db.execute(query_new_loc)
+    new_location = cur_new_loc.fetchall()
+
+    if (len(checkins) is 0) or (len(old_location) is 0) or (len(new_location) is 0):
+        app.logger.error("No data raise 404")
+        abort(404)
 
     return checkins, old_location, new_location
 
