@@ -748,7 +748,7 @@ if __name__ == '__main__':
 
 
 
-    
+	
 def _counts(data):
     # Generate a table of sorted (value, frequency) pairs.
     table = Counter(iter(data)).most_common()
@@ -763,35 +763,19 @@ def _counts(data):
     return table
 
 def mode(data):
-    u"""Return the most common data point from discrete or nominal data.
-
-    ``mode`` assumes discrete data, and returns a single value. This is the
-    standard treatment of the mode as commonly taught in schools:
-
-    >>> mode([1, 1, 2, 3, 3, 3, 3, 4])
-    3
-
-    This also works with nominal (non-numeric) data:
-
-    >>> mode(["red", "blue", "blue", "red", "green", "red", "red"])
-    'red'
-
-    If there is not exactly one most common value, ``mode`` will raise
-    StatisticsError.
-    """
-    # Generate a table of sorted (value, frequency) pairs.
+    
     table = _counts(data)
     if len(table) == 1:
         return table[0][0]
     elif len(table) > 1 :
-        return -1
+		return -1
     elif len(table) == 0: 
-        return None
+		return None
 
 def f_mode(data):
  
-    table = _counts(data)
-    return table
+	table = _counts(data)
+	return table
     
         
 u""" Algorithm """		
@@ -805,12 +789,19 @@ table_clo= conn.cursor()
 i=0
 min=999
 total=0
-changed=0
+no_change=0
+d0_50=0
+d50_100=0
+d100_500=0
+d500_=0
+distance=0.0
+t_distance=0.0
 arlat=[]
 arlon=[]
 list=[]
 modelat=0.0
 modelon=0.0
+
 
 data.execute('''CREATE TABLE Results
              (venue_id text, lat real, lng real , distance real)''')			 
@@ -819,91 +810,110 @@ venue_id=table_vid.fetchone()
 
 while venue_id is not None:
 
-            total+=1	
-            id=str(venue_id) 
-            id=id[3:-3]
-            table_vlat.execute("SELECT lat FROM venues WHERE venue_id='%s'"%(id))
-            v_lat = table_vlat.fetchone()			
-            if v_lat is None:			
-                break
-                
-            vlat=str(v_lat) 
-            vlat=vlat[1:-2]
-            table_vlon.execute("SELECT lng FROM venues WHERE venue_id='%s'"%(id))
-            v_lon = table_vlon.fetchone()			
-            if v_lon is None:			
-                 break
-                       
-            vlon=str(v_lon) 
-            vlon=vlon[1:-2]
-            table_cla.execute("SELECT lat FROM checkins WHERE venue_id='%s'"%(id))
-            id_lat = table_cla.fetchone()	
-            while id_lat is not None:			
-                    lat=str(id_lat) 
-                    lat=lat[1:-2]
-                    arlat.append(lat)
-                    id_lat = table_cla.fetchone()
-                    
-            modelat=mode(arlat)
-            table_clo.execute("SELECT lng FROM checkins WHERE venue_id='%s'"%(id))
-            id_lon = table_clo.fetchone()
-            while id_lon is not None:					
-                    lon=str(id_lon) 
-                    lon=lon[1:-2]					
-                    arlon.append(lon)
-                    id_lon = table_clo.fetchone()
-                    
-            modelon=mode(arlon)
-            if modelat is None:
-                    modelat=vlat
-                    
-            if modelon is None:
-                    modelon=vlon
-                    
-            if modelat is -1:
-                    list=f_mode(arlat)
-                    while len(list)>i:
-                        if math.pow((float(list[i][0])-float(vlat)),2) < min :
-                            min=list[i][0]
-                        i+=1
-                        
-                    while len(list) > 0 : 
-                        list.pop()
-                        
-                    modelat=min
-            i=0
-            min=999
-            if modelon is -1:
-                    list=f_mode(arlon)
-                    while len(list)>i :
-                        if(math.pow(float(list[i][0])-float(vlon),2) < min):
-                            min=list[i][0]
-                        i+=1
-                        
-                    while len(list) > 0 : 
-                        list.pop()
-                        
-                    modelon=min
-            i=0
-            min=999
-            calc=(modelat,modelon)
-            orig=(vlat,vlon)
-            distance=great_circle(calc,orig).meters
-            if distance>0:
-                    changed+=1
-            
-            data.execute("INSERT INTO Results VALUES (?,?,?,?);",(id,modelat,modelon,distance))
-            while len(arlon) > 0 : arlon.pop()
-            while len(arlat) > 0 : arlat.pop()
-            venue_id=table_vid.fetchone()
-print changed
+			total+=1	
+			id=str(venue_id) 
+			id=id[3:-3]
+			table_vlat.execute("SELECT lat FROM venues WHERE venue_id='%s'"%(id))
+			v_lat = table_vlat.fetchone()			
+			if v_lat is None:			
+				break
+				
+			vlat=str(v_lat) 
+			vlat=vlat[1:-2]
+			table_vlon.execute("SELECT lng FROM venues WHERE venue_id='%s'"%(id))
+			v_lon = table_vlon.fetchone()			
+			if v_lon is None:			
+				 break
+					   
+			vlon=str(v_lon) 
+			vlon=vlon[1:-2]
+			table_cla.execute("SELECT lat FROM checkins WHERE venue_id='%s'"%(id))
+			id_lat = table_cla.fetchone()	
+			while id_lat is not None:			
+					lat=str(id_lat) 
+					lat=lat[1:-2]
+					arlat.append(lat)
+					id_lat = table_cla.fetchone()
+					
+			modelat=mode(arlat)
+			table_clo.execute("SELECT lng FROM checkins WHERE venue_id='%s'"%(id))
+			id_lon = table_clo.fetchone()
+			while id_lon is not None:					
+					lon=str(id_lon) 
+					lon=lon[1:-2]					
+					arlon.append(lon)
+					id_lon = table_clo.fetchone()
+					
+			modelon=mode(arlon)
+			if modelat is None:
+					modelat=vlat
+					
+			if modelon is None:
+					modelon=vlon
+					
+			if modelat is -1:
+					list=f_mode(arlat)
+					while len(list)>i:
+						if math.pow((float(list[i][0])-float(vlat)),2) < min :
+							min=list[i][0]
+						i+=1
+						
+					while len(list) > 0 : 
+						list.pop()
+						
+					modelat=min
+			i=0
+			min=999
+			if modelon is -1:
+					list=f_mode(arlon)
+					while len(list)>i :
+						if(math.pow(float(list[i][0])-float(vlon),2) < min):
+							min=list[i][0]
+						i+=1
+						
+					while len(list) > 0 : 
+						list.pop()
+						
+					modelon=min
+			i=0
+			min=999
+			calc=(modelat,modelon)
+			orig=(vlat,vlon)
+			distance=great_circle(calc,orig).meters
+			t_distance+=distance
+			if distance==0.0:
+					no_change+=1
+			elif distance>0.00 and distance<=50.00:
+					d0_50+=1
+					
+			elif distance>50.00 and distance<=100.00:
+					d50_100+=1
+					
+			elif distance>100.00 and distance<500.00:
+					d100_500+=1
+					
+			elif distance>500.00 :
+					d500_+=1
+					
+			data.execute("INSERT INTO Results VALUES (?,?,?,?);",(id,modelat,modelon,distance))
+			while len(arlon) > 0 : arlon.pop()
+			while len(arlat) > 0 : arlat.pop()
+			venue_id=table_vid.fetchone()
 print total
-        
-            
-            
-        
+print no_change
+print d0_50
+print d50_100
+print d100_500
+print d500_
+print t_distance
+
+print total-no_change
+		
+			
+			
+		
 conn.commit()
 data.commit()
 conn.close()
 data.close()
-           
+		   
