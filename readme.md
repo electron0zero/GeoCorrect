@@ -19,3 +19,14 @@ Correction of maps(location data) using on VGI data
 - clean: folder for our dataset(clean data + dirty data + data cleaning scripts) 
 - docs : documentation
 - web: flask based web application to visualize data
+
+
+## Screenshots
+
+<p align="center">
+<img src="Screenshots/1.png" height="400">
+<img src="Screenshots/3.png" height="400">
+<img src="Screenshots/4.png" height="400">
+<img src="Screenshots/5.png" height="400">
+<img src="Screenshots/2.png" height="400">
+</p>
