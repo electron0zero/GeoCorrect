@@ -12,7 +12,6 @@ list, set, and tuple.
 * Counter      dict subclass for counting hashable objects
 * OrderedDict  dict subclass that remembers the order entries were added
 * defaultdict  dict subclass that calls a factory function to supply missing values
-
 '''
 
 __all__ = ['Counter', 'deque', 'defaultdict', 'namedtuple', 'OrderedDict']
@@ -36,9 +35,9 @@ except ImportError:
     from dummy_thread import get_ident as _get_ident
 
 
-################################################################################
-### OrderedDict
-################################################################################
+##########################################################################
+# OrderedDict
+##########################################################################
 
 class OrderedDict(dict):
     'Dictionary that remembers insertion order'
@@ -89,14 +88,17 @@ class OrderedDict(dict):
         # removed by updating the links in the predecessor and successor nodes.
         dict_delitem(self, key)
         link_prev, link_next, _ = self.__map.pop(key)
-        link_prev[1] = link_next                        # update link_prev[NEXT]
-        link_next[0] = link_prev                        # update link_next[PREV]
+        # update link_prev[NEXT]
+        link_prev[1] = link_next
+        # update link_next[PREV]
+        link_next[0] = link_prev
 
     def __iter__(self):
         'od.__iter__() <==> iter(od)'
         # Traverse the linked list in order.
         root = self.__root
-        curr = root[1]                                  # start at the first node
+        # start at the first node
+        curr = root[1]
         while curr is not root:
             yield curr[2]                               # yield the curr[KEY]
             curr = curr[1]                              # move to next node
@@ -105,7 +107,8 @@ class OrderedDict(dict):
         'od.__reversed__() <==> reversed(od)'
         # Traverse the linked list in reverse order.
         root = self.__root
-        curr = root[0]                                  # start at the last node
+        # start at the last node
+        curr = root[0]
         while curr is not root:
             yield curr[2]                               # yield the curr[KEY]
             curr = curr[0]                              # move to previous node
@@ -147,7 +150,7 @@ class OrderedDict(dict):
 
     update = MutableMapping.update
 
-    __update = update # let subclasses override update without breaking __init__
+    __update = update  # let subclasses override update without breaking __init__
 
     __marker = object()
 
@@ -249,9 +252,9 @@ class OrderedDict(dict):
         return ItemsView(self)
 
 
-################################################################################
-### namedtuple
-################################################################################
+##########################################################################
+# namedtuple
+##########################################################################
 
 _class_template = '''\
 class {typename}(tuple):
@@ -307,6 +310,7 @@ _field_template = '''\
     {name} = _property(_itemgetter({index:d}), doc='Alias for field number {index:d}')
 '''
 
+
 def namedtuple(typename, field_names, verbose=False, rename=False):
     """Returns a new subclass of tuple with named fields.
 
@@ -340,18 +344,18 @@ def namedtuple(typename, field_names, verbose=False, rename=False):
     if rename:
         seen = set()
         for index, name in enumerate(field_names):
-            if (not all(c.isalnum() or c=='_' for c in name)
+            if (not all(c.isalnum() or c == '_' for c in name)
                 or _iskeyword(name)
                 or not name
                 or name[0].isdigit()
                 or name.startswith('_')
-                or name in seen):
+                    or name in seen):
                 field_names[index] = '_%d' % index
             seen.add(name)
     for name in [typename] + field_names:
         if type(name) != str:
             raise TypeError('Type names and field names must be strings')
-        if not all(c.isalnum() or c=='_' for c in name):
+        if not all(c.isalnum() or c == '_' for c in name):
             raise ValueError('Type names and field names can only contain '
                              'alphanumeric characters and underscores: %r' % name)
         if _iskeyword(name):
@@ -371,14 +375,14 @@ def namedtuple(typename, field_names, verbose=False, rename=False):
 
     # Fill-in the class template
     class_definition = _class_template.format(
-        typename = typename,
-        field_names = tuple(field_names),
-        num_fields = len(field_names),
-        arg_list = repr(tuple(field_names)).replace("'", "")[1:-1],
-        repr_fmt = ', '.join(_repr_template.format(name=name)
-                             for name in field_names),
-        field_defs = '\n'.join(_field_template.format(index=index, name=name)
-                               for index, name in enumerate(field_names))
+        typename=typename,
+        field_names=tuple(field_names),
+        num_fields=len(field_names),
+        arg_list=repr(tuple(field_names)).replace("'", "")[1:-1],
+        repr_fmt=', '.join(_repr_template.format(name=name)
+                           for name in field_names),
+        field_defs='\n'.join(_field_template.format(index=index, name=name)
+                             for index, name in enumerate(field_names))
     )
     if verbose:
         print class_definition
@@ -398,7 +402,8 @@ def namedtuple(typename, field_names, verbose=False, rename=False):
     # sys._getframe is not defined (Jython for example) or sys._getframe is not
     # defined for arguments greater than 0 (IronPython).
     try:
-        result.__module__ = _sys._getframe(1).f_globals.get('__name__', '__main__')
+        result.__module__ = _sys._getframe(
+            1).f_globals.get('__name__', '__main__')
     except (AttributeError, ValueError):
         pass
 
@@ -406,7 +411,7 @@ def namedtuple(typename, field_names, verbose=False, rename=False):
 
 
 ########################################################################
-###  Counter
+# Counter
 ########################################################################
 
 class Counter(dict):
@@ -565,7 +570,8 @@ class Counter(dict):
                     for elem, count in iterable.iteritems():
                         self[elem] = self_get(elem, 0) + count
                 else:
-                    super(Counter, self).update(iterable) # fast path when counter is empty
+                    # fast path when counter is empty
+                    super(Counter, self).update(iterable)
             else:
                 self_get = self.get
                 for elem in iterable:
@@ -721,19 +727,22 @@ if __name__ == '__main__':
     # test and demonstrate ability to override methods
     class Point(namedtuple('Point', 'x y')):
         __slots__ = ()
+
         @property
         def hypot(self):
             return (self.x ** 2 + self.y ** 2) ** 0.5
+
         def __str__(self):
             return 'Point: x=%6.3f  y=%6.3f  hypot=%6.3f' % (self.x, self.y, self.hypot)
 
-    for p in Point(3, 4), Point(14, 5/7.):
+    for p in Point(3, 4), Point(14, 5 / 7.):
         print p
 
     class Point(namedtuple('Point', 'x y')):
         'Point class with optimized _make() and _replace() without error-checking'
         __slots__ = ()
         _make = classmethod(tuple.__new__)
+
         def _replace(self, _map=map, **kwds):
             return self._make(_map(kwds.get, ('x', 'y'), self))
 
@@ -747,8 +756,6 @@ if __name__ == '__main__':
     print TestResults(*doctest.testmod())
 
 
-
-	
 def _counts(data):
     # Generate a table of sorted (value, frequency) pairs.
     table = Counter(iter(data)).most_common()
@@ -762,143 +769,146 @@ def _counts(data):
             break
     return table
 
+
 def mode(data):
-    
     table = _counts(data)
     if len(table) == 1:
         return table[0][0]
-    elif len(table) > 1 :
-		return -1
-    elif len(table) == 0: 
-		return None
+    elif len(table) > 1:
+        return -1
+    elif len(table) == 0:
+        return None
+
 
 def f_mode(data):
- 
-	table = _counts(data)
-	return table
-    
-        
-u""" Algorithm """		
+    table = _counts(data)
+    return table
+
+
+u""" Algorithm """
 conn = sqlite3.connect('db.sqlite')
 data = sqlite3.connect('results.sqlite')
-table_vid= conn.cursor()
-table_vlat= conn.cursor()
-table_vlon= conn.cursor()
-table_cla= conn.cursor()
-table_clo= conn.cursor()
-i=0
-min=999
-total=0
-no_change=0
-d0_50=0
-d50_100=0
-d100_500=0
-d500_=0
-distance=0.0
-t_distance=0.0
-arlat=[]
-arlon=[]
-list=[]
-modelat=0.0
-modelon=0.0
+table_vid = conn.cursor()
+table_vlat = conn.cursor()
+table_vlon = conn.cursor()
+table_cla = conn.cursor()
+table_clo = conn.cursor()
+i = 0
+min = 999
+total = 0
+no_change = 0
+d0_50 = 0
+d50_100 = 0
+d100_500 = 0
+d500_ = 0
+distance = 0.0
+t_distance = 0.0
+arlat = []
+arlon = []
+list = []
+modelat = 0.0
+modelon = 0.0
 
 
 data.execute('''CREATE TABLE Results
-             (venue_id text, lat real, lng real , distance real)''')			 
+             (venue_id text, lat real, lng real , distance real)''')
 table_vid.execute("SELECT venue_id FROM venues ")
-venue_id=table_vid.fetchone()
+venue_id = table_vid.fetchone()
 
 while venue_id is not None:
+    total += 1
+    id = str(venue_id)
+    id = id[3:-3]
+    table_vlat.execute("SELECT lat FROM venues WHERE venue_id='%s'" % (id))
+    v_lat = table_vlat.fetchone()
+    if v_lat is None:
+        break
 
-			total+=1	
-			id=str(venue_id) 
-			id=id[3:-3]
-			table_vlat.execute("SELECT lat FROM venues WHERE venue_id='%s'"%(id))
-			v_lat = table_vlat.fetchone()			
-			if v_lat is None:			
-				break
-				
-			vlat=str(v_lat) 
-			vlat=vlat[1:-2]
-			table_vlon.execute("SELECT lng FROM venues WHERE venue_id='%s'"%(id))
-			v_lon = table_vlon.fetchone()			
-			if v_lon is None:			
-				 break
-					   
-			vlon=str(v_lon) 
-			vlon=vlon[1:-2]
-			table_cla.execute("SELECT lat FROM checkins WHERE venue_id='%s'"%(id))
-			id_lat = table_cla.fetchone()	
-			while id_lat is not None:			
-					lat=str(id_lat) 
-					lat=lat[1:-2]
-					arlat.append(lat)
-					id_lat = table_cla.fetchone()
-					
-			modelat=mode(arlat)
-			table_clo.execute("SELECT lng FROM checkins WHERE venue_id='%s'"%(id))
-			id_lon = table_clo.fetchone()
-			while id_lon is not None:					
-					lon=str(id_lon) 
-					lon=lon[1:-2]					
-					arlon.append(lon)
-					id_lon = table_clo.fetchone()
-					
-			modelon=mode(arlon)
-			if modelat is None:
-					modelat=vlat
-					
-			if modelon is None:
-					modelon=vlon
-					
-			if modelat is -1:
-					list=f_mode(arlat)
-					while len(list)>i:
-						if math.pow((float(list[i][0])-float(vlat)),2) < min :
-							min=list[i][0]
-						i+=1
-						
-					while len(list) > 0 : 
-						list.pop()
-						
-					modelat=min
-			i=0
-			min=999
-			if modelon is -1:
-					list=f_mode(arlon)
-					while len(list)>i :
-						if(math.pow(float(list[i][0])-float(vlon),2) < min):
-							min=list[i][0]
-						i+=1
-						
-					while len(list) > 0 : 
-						list.pop()
-						
-					modelon=min
-			i=0
-			min=999
-			calc=(modelat,modelon)
-			orig=(vlat,vlon)
-			distance=great_circle(calc,orig).meters
-			t_distance+=distance
-			if distance==0.0:
-					no_change+=1
-			elif distance>0.00 and distance<=50.00:
-					d0_50+=1
-					
-			elif distance>50.00 and distance<=100.00:
-					d50_100+=1
-					
-			elif distance>100.00 and distance<500.00:
-					d100_500+=1
-					
-			elif distance>500.00 :
-					d500_+=1
-					
-			data.execute("INSERT INTO Results VALUES (?,?,?,?);",(id,modelat,modelon,distance))
-			while len(arlon) > 0 : arlon.pop()
-			while len(arlat) > 0 : arlat.pop()
-			venue_id=table_vid.fetchone()
+    vlat = str(v_lat)
+    vlat = vlat[1:-2]
+    table_vlon.execute("SELECT lng FROM venues WHERE venue_id='%s'" % (id))
+    v_lon = table_vlon.fetchone()
+    if v_lon is None:
+        break
+
+    vlon = str(v_lon)
+    vlon = vlon[1:-2]
+    table_cla.execute("SELECT lat FROM checkins WHERE venue_id='%s'" % (id))
+    id_lat = table_cla.fetchone()
+    while id_lat is not None:
+        lat = str(id_lat)
+        lat = lat[1:-2]
+        arlat.append(lat)
+        id_lat = table_cla.fetchone()
+
+    modelat = mode(arlat)
+    table_clo.execute("SELECT lng FROM checkins WHERE venue_id='%s'" % (id))
+    id_lon = table_clo.fetchone()
+    while id_lon is not None:
+        lon = str(id_lon)
+        lon = lon[1:-2]
+        arlon.append(lon)
+        id_lon = table_clo.fetchone()
+
+    modelon = mode(arlon)
+    if modelat is None:
+        modelat = vlat
+
+    if modelon is None:
+        modelon = vlon
+
+    if modelat is -1:
+        list = f_mode(arlat)
+        while len(list) > i:
+            if math.pow((float(list[i][0]) - float(vlat)), 2) < min:
+                min = list[i][0]
+            i += 1
+
+        while len(list) > 0:
+            list.pop()
+
+        modelat = min
+    i = 0
+    min = 999
+    if modelon is -1:
+        list = f_mode(arlon)
+        while len(list) > i:
+            if(math.pow(float(list[i][0]) - float(vlon), 2) < min):
+                min = list[i][0]
+            i += 1
+
+        while len(list) > 0:
+            list.pop()
+
+        modelon = min
+    i = 0
+    min = 999
+    calc = (modelat, modelon)
+    orig = (vlat, vlon)
+    distance = great_circle(calc, orig).meters
+    t_distance += distance
+    if distance == 0.0:
+        no_change += 1
+    elif distance > 0.00 and distance <= 50.00:
+        d0_50 += 1
+
+    elif distance > 50.00 and distance <= 100.00:
+        d50_100 += 1
+
+    elif distance > 100.00 and distance < 500.00:
+        d100_500 += 1
+
+    elif distance > 500.00:
+        d500_ += 1
+
+    data.execute("INSERT INTO Results VALUES (?,?,?,?);",
+                 (id, modelat, modelon, distance))
+    while len(arlon) > 0:
+        arlon.pop()
+    while len(arlat) > 0:
+        arlat.pop()
+    venue_id = table_vid.fetchone()
+
 print total
 print no_change
 print d0_50
@@ -907,13 +917,9 @@ print d100_500
 print d500_
 print t_distance
 
-print total-no_change
-		
-			
-			
-		
+print total - no_change
+
 conn.commit()
 data.commit()
 conn.close()
 data.close()
-		   
