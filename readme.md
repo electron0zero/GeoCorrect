@@ -1,6 +1,11 @@
 # GeoCorrect
 Correction of maps(location data) using on VGI data
 
+[![DOI](https://zenodo.org/badge/84708061.svg)](https://zenodo.org/badge/latestdoi/84708061)
+
+https://zenodo.org/record/3384219
+
+
 ## Demo is live at [https://geocorrect.herokuapp.com/](https://geocorrect.herokuapp.com/) have a look
 
 # Instructions
